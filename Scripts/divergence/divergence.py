@@ -166,6 +166,11 @@ def full_div(missing_masked):
 	status = "Genome-wide per-site divergence calculated for " + str(len(sites_used)) + "\n" + "Number of sites used in genome-wide per-site divergence calculation: " + str(sum(sites_used)/len(sites_used))
 	return full_div_list,status
 
+def filtered_window_index(size, missing_masked)
+	index_count = list()
+	for pop in missing_masked:
+		start = 0
+		index_count = start += len(missing_masked)
 
 # Calculate per-site divergence across windows sizes that include only valid sites (number of sites in each window will be the same) 
 def per_site_filtered(size, missing_masked):
@@ -174,13 +179,32 @@ def per_site_filtered(size, missing_masked):
 	filter_list = list()
 	# Create a list that stores each population list of window-based divergence values
 	window_div_list = list()
+	#Create a list that stores the window starts
+	window_starts = list()
 
 	# For each population list of counts, remove null sites before breaking into windows
-	for pop in missing_masked:
-		# Remove sites with 'N'
-		filter_pop = filter(lambda x: x != 'N', pop)
-		# Create filtered data list
-		filter_list.append(filter_pop)
+	#for pop in missing_masked:
+	#	# Remove sites with 'N'
+	#	filter_pop = filter(lambda x: x != 'N', pop)
+	#	# Create filtered data list
+	#	filter_list.append(filter_pop)
+
+#Create a new filtered list of divergence values without the N values for each population list
+#Creates a list of inex values for each window
+	current_win_length = 0
+	window_starts.append(0)
+
+	for i in range(len(missing_masked[0])):
+		if current_win_length == size:
+			window_starts.append(i)
+			current_win_length = 0
+
+		if missing_mask[0][i] != "N":
+			for j in range(len(filter_list)):
+				filter_list[j].append(missing_mask[j][i])
+			current_win_length += 1
+		
+
 	
 	# For each population list in filtered list of counts
 	for pop in filter_list:
@@ -207,7 +231,7 @@ def per_site_filtered(size, missing_masked):
 		window_div_list.append(window_div_pop)
 
 	status = "Number of windows (window size based on called sites): " + str(len(window_div_list[0]))
-	return window_div_list,status
+	return window_div_list,window_starts,status
 
 
 # Calculate per-site divergence across windows sizes that include missing sites (number of sites in each window will vary) 
@@ -218,6 +242,16 @@ def per_site_total(size, missing_masked):
 
 	# List of called sites in each window in each population 
 	called_sites_list = list()
+
+#Calculate the window stat indexes
+	total_window_indexes = list()
+	current_start = 0
+	while current_start <= len(missing_masked[0])
+		total_window_indexes.append(current_start)
+		current_start += size
+	print(total_window_indexes[0,9])
+
+	window_starts = list()
 
 	# For each population list in unfiltered list of counts, set window size before removing null values
 	for pop in missing_masked:
@@ -255,7 +289,7 @@ def per_site_total(size, missing_masked):
 	var_sites = sum((i - mean_sites) ** 2 for i in called_sites_list)/len(called_sites_list)
 
 	status = "Number of windows (window size based on total sites): " + str(len(window_div_list[0])) + "\n" + "Average number of called sites in each window: " + str(mean_sites) + "\n" + "Variance in number of called sites in each window: " + str(var_sites)
-	return window_div_list,status
+	return window_div_list,window_starts,status
 
 
 # Create output table where column is population and row is window
@@ -354,10 +388,10 @@ def main():
 	# Determine whether total number of sites or filtered number of sites will be used to set window size
 	if (win_type == 'total'):
 		# Calculate per-site divergence within window, gives list of lists of per-window divergence in each population
-		window_div,stat_line = per_site_total(size=size, missing_masked=missing_masked)
+		window_div,window_starts,stat_line = per_site_total(size=size, missing_masked=missing_masked)
 		stat.write(stat_line + "\n")
 	if (win_type == 'filtered'):
-		window_div,stat_line = per_site_filtered(size=size, missing_masked=missing_masked)
+		window_div,window_starts,stat_line = per_site_filtered(size=size, missing_masked=missing_masked)
 		stat.write(stat_line + "\n")
 
 	# List of the genome-wide per-site divergence values for each population
