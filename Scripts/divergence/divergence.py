@@ -354,6 +354,13 @@ def create_fname_file(filenames, file):
 	outfile.write(line_to_print)
 	outfile.close()
 
+#Create an output file with the list of window starts
+def create_starts(window_starts,file_name)
+	outfile = open((str(file_name)),"w")
+	line_to_print = "\t".join([str(x) for x in window_starts])
+	outfile.write(line_to_print)
+	outfile.close()
+
 
 # Main function
 def main():
@@ -367,6 +374,7 @@ def main():
 	out = str(args.out) + "_" + str(args.window_type) + "_" + str(args.window_size) + ".div_window"
 	div = str(args.out)  + "_" + str(args.window_type) + "_" + str(args.window_size) + ".div_full"
 	missing = str(args.out)  + "_" + str(args.window_type) + "_" + str(args.window_size) + ".missing"
+	start = str(args.out)  + "_" + str(args.window_type) + "_" + str(args.window_size) + ".win_starts"
 	stat = open((str(args.out)  + "_" + str(args.window_type) + "_" + str(args.window_size) + ".status"), "w")
 	win_type = str(args.window_type)
 	size = int(args.window_size)
@@ -405,6 +413,7 @@ def main():
 	create_div(full_div_list=full_div_list, div=div)
 	create_fname_file(filenames=args.d_mel_count_files, file=(str(args.out)  + "_" + str(args.window_type) + "_" + str(args.window_size) + ".names"))
 
+	create_starts(window_starts=window_starts,file_name=start)
 
 if __name__ == '__main__':
 	main()
