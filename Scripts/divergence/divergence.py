@@ -44,8 +44,8 @@ def parse_args():
 
 # Calculate proportion of melanogaster genotypes that don't match simulans reference
 def div_calc(d_mel, d_sim):
-	print(d_sim)
-	print(d_mel)
+	#print(d_sim)
+	#print(d_mel)
 
 	# Define a list of lists
 	pop_list = list()
@@ -91,8 +91,7 @@ def div_calc(d_mel, d_sim):
 
 		# Create a list of lists where each element is a list of population divergence values
 		pop_list.append(div_list)
-	print("hey")
-	print(pop_list)
+
 	status = "Calculated divergent counts for " + str(len(pop_list)) + " populations" + "\n" + "Number of sites processed for each population: " + str(len(pop_list[0]))
 	return pop_list,status
 
@@ -200,17 +199,20 @@ def per_site_filtered(size, missing_masked):
 #Creates a list of inex values for each window
 	current_win_length = 0
 	window_starts.append(0)
-
+	for i in range(len(missing_masked)):
+		filter_list.append([])
+	#print(missing_masked)
 	for i in range(len(missing_masked[0])):
 		if current_win_length == size:
 			window_starts.append(i)
 			current_win_length = 0
 
-		if missing_mask[0][i] != "N":
+		if missing_masked[0][i] != "N":
 			for j in range(len(filter_list)):
-				filter_list[j].append(missing_mask[j][i])
+				filter_list[j].append(missing_masked[j][i])
 			current_win_length += 1
-		
+	#print(window_starts)
+	#print(filter_list)
 
 	
 	# For each population list in filtered list of counts
@@ -223,7 +225,7 @@ def per_site_filtered(size, missing_masked):
 		window_div_pop = list()
 
 		# Perform per-site divergence calculations across each window
-		for window in range(0, ((len(pop)/size)+1)):
+		for window in range(0, ((len(pop)//size)+1)):
 			# Sum all of the divergent counts across window
 			sum_div = sum(pop[start:end])
 			# Get per-site divergence by dividing these by the number of sites
@@ -253,7 +255,7 @@ def per_site_total(size, missing_masked):
 	#Calculate the window start indexes
 	window_starts = list()
 	current_start = 0
-	while current_start <= len(missing_masked[0]):
+	while current_start < len(missing_masked[0]):
 		window_starts.append(current_start)
 		current_start += size
 	
