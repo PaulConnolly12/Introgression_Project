@@ -44,6 +44,8 @@ def parse_args():
 
 # Calculate proportion of melanogaster genotypes that don't match simulans reference
 def div_calc(d_mel, d_sim):
+	print(d_sim)
+	print(d_mel)
 
 	# Define a list of lists
 	pop_list = list()
@@ -56,14 +58,18 @@ def div_calc(d_mel, d_sim):
 		# Open each melanogaster population file
 		with open(f) as mel_file:
 			# Read d_mel file one line at a time
-			for lnum, line in enumerate(mel_file):
+			
+			for (lnum, line) in enumerate(mel_file):
 				# Extract elements as int in matching d_sim line (note: linecache starts counting at 1)
-				sim_line = map(int, ((linecache.getline(d_sim, (lnum + 1))).split()))
+				sim_line = list(map(int, ((linecache.getline(d_sim, (lnum + 1))).split())))
 				# Extract elements as int in d_mel line for current file
-				mel_line = map(int, (line.split()))
+				mel_line = list(map(int, (line.split())))
 				# Create counter to track the number of non-ref genotypes for each site in d_mel file
 				div_cnt = 0
-
+				# print(sim_line)
+				# print(mel_line)
+				#print(list(sim_line))
+				#print(list(mel_line))
 				# Add 'N' to list at sites where either the sim ref or the mel pop are not called
 				if ((sum(sim_line) == 0) or (sum(mel_line) == 0)):
 					# Add a null value to the list entry for this site
@@ -72,7 +78,7 @@ def div_calc(d_mel, d_sim):
 				# If there are called genotypes at a site
 				else:
 					# Check each base-pair column
-					for i in range(0, len(sim_line)):
+					for i in range(0, len(list(sim_line))):
 						# If there are non-ref genotypes
 						if ((sim_line[i] != mel_line[i]) and (mel_line[i] > 0) and (sim_line[i] == 0)):
 							# Count how many non-ref genotypes there are
@@ -85,7 +91,8 @@ def div_calc(d_mel, d_sim):
 
 		# Create a list of lists where each element is a list of population divergence values
 		pop_list.append(div_list)
-
+	print("hey")
+	print(pop_list)
 	status = "Calculated divergent counts for " + str(len(pop_list)) + " populations" + "\n" + "Number of sites processed for each population: " + str(len(pop_list[0]))
 	return pop_list,status
 
@@ -133,7 +140,7 @@ def mask_missing(pop_list, miss_idx):
 
 		filtered_pop_list.append(pop)
 
-	status = str(len(filter(lambda x: x != 'N', filtered_pop_list[0]))) + " sites were retained after masking"
+	status = str(len(list(filter(lambda x: x != 'N', filtered_pop_list[0])))) + " sites were retained after masking"
 	return filtered_pop_list,status
 
 
@@ -150,7 +157,7 @@ def full_div(missing_masked):
 	# For each population list of counts
 	for pop in missing_masked:
 		# Remove sites with 'N'
-		filter_pop = filter(lambda x: x != 'N', pop)
+		filter_pop = list(filter(lambda x: x != 'N', pop))
 		# Create filtered data list
 		filter_list.append(filter_pop)
 
@@ -166,11 +173,11 @@ def full_div(missing_masked):
 	status = "Genome-wide per-site divergence calculated for " + str(len(sites_used)) + "\n" + "Number of sites used in genome-wide per-site divergence calculation: " + str(sum(sites_used)/len(sites_used))
 	return full_div_list,status
 
-def filtered_window_index(size, missing_masked)
-	index_count = list()
-	for pop in missing_masked:
-		start = 0
-		index_count = start += len(missing_masked)
+# def filtered_window_index(size, missing_masked):
+# 	index_count = list()
+# 	for pop in missing_masked:
+# 		start = 0
+# 		index_count = start += len(missing_masked)
 
 # Calculate per-site divergence across windows sizes that include only valid sites (number of sites in each window will be the same) 
 def per_site_filtered(size, missing_masked):
@@ -243,15 +250,14 @@ def per_site_total(size, missing_masked):
 	# List of called sites in each window in each population 
 	called_sites_list = list()
 
-#Calculate the window stat indexes
-	total_window_indexes = list()
-	current_start = 0
-	while current_start <= len(missing_masked[0])
-		total_window_indexes.append(current_start)
-		current_start += size
-	print(total_window_indexes[0,9])
-
+	#Calculate the window start indexes
 	window_starts = list()
+	current_start = 0
+	while current_start <= len(missing_masked[0]):
+		window_starts.append(current_start)
+		current_start += size
+	
+
 
 	# For each population list in unfiltered list of counts, set window size before removing null values
 	for pop in missing_masked:
@@ -263,9 +269,9 @@ def per_site_total(size, missing_masked):
 		window_div_pop = list()
 
 		# For each window
-		for window in range(0, ((len(pop)/size)+1)):
+		for window in range(0, ((len(pop)//size)+1)):
 			# Remove sites within the specified window that contain 'N'
-			filter_win = filter(lambda x: x != 'N', pop[start:end]) 
+			filter_win = list(filter(lambda x: x != 'N', pop[start:end]))
 
 			# If the window still contains sites after filtering
 			if (len(filter_win) != 0):
@@ -355,7 +361,7 @@ def create_fname_file(filenames, file):
 	outfile.close()
 
 #Create an output file with the list of window starts
-def create_starts(window_starts,file_name)
+def create_starts(window_starts,file_name):
 	outfile = open((str(file_name)),"w")
 	line_to_print = "\t".join([str(x) for x in window_starts])
 	outfile.write(line_to_print)
@@ -375,7 +381,7 @@ def main():
 	div = str(args.out)  + "_" + str(args.window_type) + "_" + str(args.window_size) + ".div_full"
 	missing = str(args.out)  + "_" + str(args.window_type) + "_" + str(args.window_size) + ".missing"
 	start = str(args.out)  + "_" + str(args.window_type) + "_" + str(args.window_size) + ".win_starts"
-	stat = open((str(args.out)  + "_" + str(args.window_type) + "_" + str(args.window_size) + ".status"), "w")
+	stat = open((str(args.out)  + "_" + str(args.window_type) + "_" + str(args.window_size) + ".status"), 'w')
 	win_type = str(args.window_type)
 	size = int(args.window_size)
 
