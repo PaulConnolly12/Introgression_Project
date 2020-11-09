@@ -44,8 +44,8 @@ def parse_args():
 
 # Calculate proportion of melanogaster genotypes that don't match simulans reference
 def div_calc(d_mel, d_sim):
-	#print(d_sim)
-	#print(d_mel)
+	#print(d_sim[0:10])
+	#print(d_mel[0:10])
 
 	# Define a list of lists
 	pop_list = list()
@@ -58,7 +58,6 @@ def div_calc(d_mel, d_sim):
 		# Open each melanogaster population file
 		with open(f) as mel_file:
 			# Read d_mel file one line at a time
-			
 			for (lnum, line) in enumerate(mel_file):
 				# Extract elements as int in matching d_sim line (note: linecache starts counting at 1)
 				sim_line = list(map(int, ((linecache.getline(d_sim, (lnum + 1))).split())))
@@ -70,6 +69,7 @@ def div_calc(d_mel, d_sim):
 				# print(mel_line)
 				#print(list(sim_line))
 				#print(list(mel_line))
+
 				# Add 'N' to list at sites where either the sim ref or the mel pop are not called
 				if ((sum(sim_line) == 0) or (sum(mel_line) == 0)):
 					# Add a null value to the list entry for this site
@@ -106,8 +106,6 @@ def missing_data(pop_list):
 
 	# Loop through each site 
 	for i in range(0, len(pop_list[0])):
-		# Boolean variable to determine whether this site has missing data
-		miss_data = False
 		# Keep track of the number of populations that have missing data at this site
 		n_cnt = 0
 
@@ -115,11 +113,10 @@ def missing_data(pop_list):
 		for pop in pop_list:
 			# Set missing data to true if an 'N' is encountered
 			if (pop[i] == 'N'):
-				miss_data = True
 				n_cnt += 1
 
 		# Append this site index to list of indices if it contains missing data
-		if (miss_data):
+		if (n_cnt>0):
 			miss_idx.append(i)
 			miss_cnt_list.append(n_cnt)
 	status = str(len(miss_idx)) + " sites did not meet sample threshold due to missing data"
@@ -172,11 +169,6 @@ def full_div(missing_masked):
 	status = "Genome-wide per-site divergence calculated for " + str(len(sites_used)) + "\n" + "Number of sites used in genome-wide per-site divergence calculation: " + str(sum(sites_used)/len(sites_used))
 	return full_div_list,status
 
-# def filtered_window_index(size, missing_masked):
-# 	index_count = list()
-# 	for pop in missing_masked:
-# 		start = 0
-# 		index_count = start += len(missing_masked)
 
 # Calculate per-site divergence across windows sizes that include only valid sites (number of sites in each window will be the same) 
 def per_site_filtered(size, missing_masked):
@@ -185,35 +177,32 @@ def per_site_filtered(size, missing_masked):
 	filter_list = list()
 	# Create a list that stores each population list of window-based divergence values
 	window_div_list = list()
-	#Create a list that stores the window starts
+	# Create a list that stores the window starts
 	window_starts = list()
 
-	# For each population list of counts, remove null sites before breaking into windows
-	#for pop in missing_masked:
-	#	# Remove sites with 'N'
-	#	filter_pop = filter(lambda x: x != 'N', pop)
-	#	# Create filtered data list
-	#	filter_list.append(filter_pop)
+	# # For each population list of counts, remove null sites before breaking into windows
+	# for pop in missing_masked:
+	# 	# Remove sites with 'N'
+	# 	filter_pop = filter(lambda x: x != 'N', pop)
+	# 	# Create filtered data list
+	# 	filter_list.append(filter_pop)
 
-#Create a new filtered list of divergence values without the N values for each population list
-#Creates a list of inex values for each window
-	current_win_length = 0
-	window_starts.append(0)
+	# Populate the new filtered list of divergence values without 'N' values for each population list
 	for i in range(len(missing_masked)):
 		filter_list.append([])
-	#print(missing_masked)
+	# Simultaneosly populate the list of start index values for each window
+	window_starts.append(0)
+	current_win_length = 0
 	for i in range(len(missing_masked[0])):
+		# Record the current window start index if a window size of usable sites has passed
 		if current_win_length == size:
 			window_starts.append(i)
 			current_win_length = 0
-
+		# Only transfer the divergence values for non-masked sites
 		if missing_masked[0][i] != "N":
 			for j in range(len(filter_list)):
 				filter_list[j].append(missing_masked[j][i])
 			current_win_length += 1
-	#print(window_starts)
-	#print(filter_list)
-
 	
 	# For each population list in filtered list of counts
 	for pop in filter_list:
@@ -285,6 +274,10 @@ def per_site_total(size, missing_masked):
 				window_div_pop.append(div_ps)
 				# Append the number of called sites to the list for this population
 				called_sites_list.append(len(filter_win))
+			# If the window contains no sites after filtering, store 'NaN', Not a Number
+			else:
+				window_div_pop.append("NaN")
+				called_sites_list.append("NaN")
 			# Increment start and end indices by the size of the window
 			start += size
 			end += size
