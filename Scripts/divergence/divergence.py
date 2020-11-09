@@ -277,7 +277,7 @@ def per_site_total(size, missing_masked):
 			# If the window contains no sites after filtering, store 'NaN', Not a Number
 			else:
 				window_div_pop.append("NaN")
-				called_sites_list.append("NaN")
+				called_sites_list.append(0)
 			# Increment start and end indices by the size of the window
 			start += size
 			end += size
