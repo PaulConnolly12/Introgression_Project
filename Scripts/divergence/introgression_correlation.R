@@ -1,7 +1,7 @@
 # LOAD LIBRARIES
 
 # Set working directory
-setwd("C:/Users/ekhow/Downloads/cluster_transfers/")
+setwd("C:/Users/paulc/OneDrive/Documents/Introgression_Project/Results/Divergence")
 
 #install.packages("MASS")
 library("MASS")
@@ -38,8 +38,8 @@ win_div <- read.csv(win_div_file, sep="\t", header=FALSE)
 rec <- read.csv("mel_recomb.csv")
 
 # Subset data by genomic region
-region_df <- subset(rec, rec$ï..arm == chr)
-region_df$ï..arm <- NULL
+region_df <- subset(rec, rec$ï..Arm == chr)
+region_df$ï..Arm <- NULL
 
 # Add column names and window indices to window-based divergence df
 win_div$window <- seq.int(nrow(win_div))
@@ -57,11 +57,11 @@ colnames(ratio_tab) <- c("CO/ZI", "window")
 ratio_tab$window <- (ratio_tab$window)*window_size
 
 # Make sure both tables contain the same windows (rec. rate info has couple extra windows)
-stop_val <- max(ratio_tab$window)
-rec_trunc <- subset(region_df, region_df$stop <= stop_val)
+#stop_val <- max(ratio_tab$window)
+#rec_trunc <- subset(region_df, region_df$Stop <= stop_val)
 
 # Combine these columns to create table with ratio of CO to ZI divergence and recombination rate
-corr_tab <- data.frame("ratio_CO_ZI" = ratio_tab$`CO/ZI`, "recombination" = rec_trunc$sex_avg_c_cM_per_Mb)
+corr_tab <- data.frame("ratio_CO_ZI" = ratio_tab$`CO/ZI`, "recombination" = rec_trunc$sex.avg.c..cM.Mb.)
 
 #---------------------------------------------
 
