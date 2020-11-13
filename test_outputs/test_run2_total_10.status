@@ -1,0 +1,12 @@
+Window size: 10
+Window type: total
+Calculated divergent counts for 2 populations
+Number of sites processed for each population: 100
+11 sites did not meet sample threshold due to missing data
+89 sites were retained after masking
+Number of windows (window size based on total sites): 11
+Average number of called sites in each window: 8.090909090909092
+Variance in number of called sites in each window: 14.628099173553721
+Genome-wide per-site divergence calculated for 2
+Number of sites used in genome-wide per-site divergence calculation: 89.0
+Window based divergence outfile contains 11 rows and 2 columns

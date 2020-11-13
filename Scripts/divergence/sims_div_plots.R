@@ -2,7 +2,7 @@
 # LOAD LIBRARIES
 
 # Set working directory
-setwd("C:/Users/ekhow/Downloads/cluster_transfers/")
+setwd("C:/Users/paulc/OneDrive/Documents/Introgression_Project/Results/Divergence/new_data/")
 
 #install.packages("ggplot2")
 library("ggplot2")
@@ -24,9 +24,9 @@ library("ggforce")
 # INPUTS (EDIT THESE)
 
 # Provide file name details
-prefix <- "all_pop_"
+prefix <- "all_pop_new_"
 chr <- "Chr2R"
-window_size <- 1000
+window_size <- 100000
 window_type <- "total"
 
 #---------------------------------------------
@@ -158,7 +158,7 @@ ggplot(data=win_data, aes(x=window, y=value, group=variable, color=variable)) +
 win_data$window <- win_data$window*window_size
 
 # Put the data in plotting format
-region_points <- melt(region_df, id.vars = "sex_avg_c_cM_per_Mb")
+region_points <- melt(region_df, id.vars = "sex.avg.c..cM.Mb.")
 region_points$variable <- NULL
 
 # # Open pdf
@@ -177,7 +177,7 @@ p1 <- ggplot(data=win_data, aes(x=window, y=value, group=variable, color=variabl
   theme(plot.title = element_text(hjust = 0.5), legend.key=element_rect(fill=NA),
         axis.text.x = element_blank(), axis.title.x = element_blank()) +xlim(c(0,21500000))
 
-p2 <- ggplot(data=region_points, aes(x=value, y=sex_avg_c_cM_per_Mb)) + 
+p2 <- ggplot(data=region_points, aes(x=value, y=sex.avg.c..cM.Mb.)) + 
   geom_line() +
   ylab("Recombination\nrate (cM/Mb)")+
   xlab("Genomic position") + xlim(c(0,21500000))
@@ -204,7 +204,7 @@ stop_val <- max(ratio_tab$`win_div$window`)
 rec_trunc <- subset(region_df, region_df$stop <= stop_val)
 
 # Put the data in plotting format
-region_points <- melt(region_df, id.vars = "sex_avg_c_cM_per_Mb")
+region_points <- melt(region_df, id.vars = "sex.avg.c..cM.Mb.")
 region_points$variable <- NULL
 
 # Melt window-based divergence data to prepare for plotting
@@ -249,7 +249,7 @@ p1 <- ggplot(data=ratio_data, aes(x=`win_div$window`, y=value, group=variable, c
   theme(plot.title = element_text(hjust = 0.5), legend.key=element_rect(fill=NA),
         axis.text.x = element_blank(), axis.title.x = element_blank())
 
-p2 <- ggplot(data=region_points, aes(x=value, y=sex_avg_c_cM_per_Mb)) + 
+p2 <- ggplot(data=region_points, aes(x=value, y=sex.avg.c..cM.Mb.)) + 
   geom_line() +
   ylab("Recombination\nrate (cM/Mb)")+
   xlab("Genomic position")
@@ -277,7 +277,7 @@ stop_val <- max(ratio_tab$window)
 rec_trunc <- subset(region_df, region_df$stop <= stop_val)
 
 # Put the data in plotting format
-region_points <- melt(region_df, id.vars = "sex_avg_c_cM_per_Mb")
+region_points <- melt(region_df, id.vars = "sex.avg.c..cM.Mb.")
 region_points$variable <- NULL
 
 # Melt window-based divergence data to prepare for plotting
@@ -299,7 +299,7 @@ p1 <- ggplot(data=ratio_data, aes(x=window, y=value))+
   theme(plot.title = element_text(hjust = 0.5), legend.key=element_rect(fill=NA),
         axis.text.x = element_blank(), axis.title.x = element_blank())
 
-p2 <- ggplot(data=region_points, aes(x=value, y=sex_avg_c_cM_per_Mb)) + 
+p2 <- ggplot(data=region_points, aes(x=value, y=sex.avg.c..cM.Mb.)) + 
   geom_line() +
   ylab("Recombination\nrate (cM/Mb)")+
   xlab("Genomic position")
@@ -340,3 +340,4 @@ ggplot(data=full_data_df, aes(x=full_data_df$V1, y=as.numeric(full_data_df$V2), 
   ggtitle("Divergence between D. mel and D. sims")+
   scale_fill_manual(values=group.colors)
 #15x10
+

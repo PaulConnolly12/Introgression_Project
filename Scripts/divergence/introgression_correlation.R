@@ -1,7 +1,7 @@
 # LOAD LIBRARIES
 
 # Set working directory
-setwd("C:/Users/paulc/OneDrive/Documents/Introgression_Project/Results/Divergence")
+setwd("C:/Users/paulc/OneDrive/Documents/Introgression_Project/Results/Divergence/new_data/")
 
 #install.packages("MASS")
 library("MASS")
@@ -13,8 +13,8 @@ library("lmtest")
 # INPUTS (EDIT THESE)
 
 # Provide file name details
-prefix <- "all_pop_"
-chr <- "Chr3R"
+prefix <- "all_pop_new_"
+chr <- "Chr2R"
 window_size <- 100000
 window_type <- "total"
 
@@ -57,8 +57,8 @@ colnames(ratio_tab) <- c("CO/ZI", "window")
 ratio_tab$window <- (ratio_tab$window)*window_size
 
 # Make sure both tables contain the same windows (rec. rate info has couple extra windows)
-#stop_val <- max(ratio_tab$window)
-#rec_trunc <- subset(region_df, region_df$Stop <= stop_val)
+stop_val <- max(ratio_tab$window)
+rec_trunc <- subset(region_df, region_df$Stop <= stop_val)
 
 # Combine these columns to create table with ratio of CO to ZI divergence and recombination rate
 corr_tab <- data.frame("ratio_CO_ZI" = ratio_tab$`CO/ZI`, "recombination" = rec_trunc$sex.avg.c..cM.Mb.)
