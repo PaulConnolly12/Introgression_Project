@@ -53,8 +53,8 @@ win_div <- read.csv(win_div_file, sep="\t", header=FALSE)
 rec <- read.csv("mel_recomb.csv")
 
 # Subset data by genomic region
-region_df <- subset(rec, rec$ï..arm == chr)
-region_df$ï..arm <- NULL
+region_df <- subset(rec, rec$ï..Arm == chr)
+region_df$ï..Arm <- NULL
 
 # Add columns names to full divergence df
 div_df <- data.frame(matrix(nrow=2, ncol=length(names_abr)))
@@ -121,6 +121,9 @@ ggplot(data=full_data_df, aes(x=full_data_df$V1, y=as.numeric(full_data_df$V2), 
   ggtitle("Divergence between D. mel and D. sims")+
   scale_fill_manual(values=group.colors)+
   coord_cartesian(ylim=c(0.047,0.056))
+
+ggsave("Pop_div2R.png", units="in", width=15, height=10, dpi=300, device = 'png')
+
 #15x10
 
 # dev.off()
@@ -145,6 +148,9 @@ ggplot(data=win_data, aes(x=window, y=value, group=variable, color=variable)) +
   scale_color_manual(values=group.colors)+
   guides(colour = guide_legend(override.aes = list(size = 5)))+
   theme(plot.title = element_text(hjust = 0.5), legend.key=element_rect(fill=NA))
+
+ggsave("Per_site_div_Dmel_Dsim.png", units="in", width=20, height=8, dpi=300, device = 'png')
+
 #20X8
 
 # dev.off()
@@ -160,7 +166,7 @@ win_data$window <- win_data$window*window_size
 # Put the data in plotting format
 region_points <- melt(region_df, id.vars = "sex.avg.c..cM.Mb.")
 region_points$variable <- NULL
-
+region_points$value <- as.numeric(region_points$value)
 # # Open pdf
 # pdf_name = paste0("AllPop_",chr,"_Win_Tot_Rec_",as.character(format(window_size,scientific=F)),".pdf")
 # pdf(pdf_name, width=22, height=9)
@@ -184,6 +190,8 @@ p2 <- ggplot(data=region_points, aes(x=value, y=sex.avg.c..cM.Mb.)) +
 
 ggarrange(p1, p2, nrow = 2, ncol = 1,
           common.legend = TRUE, legend = "right", align = "v")
+ggsave("Dmel_Dsim_div_recomb_compare.png", units="in", width=22, height=9, dpi=300, device = 'png')
+
 #22x9
 
 # dev.off()
@@ -238,6 +246,7 @@ group.colors <- c(B=pal_c, CO=pal_wa[2], EA=pal_ea[2], EF=pal_ea[3], EG=pal_na, 
 # pdf(pdf_name, width=22, height=9)
 
 # Plot the divergence data on top of recombination rate
+
 p1 <- ggplot(data=ratio_data, aes(x=`win_div$window`, y=value, group=variable, color=variable)) +
   geom_line()+
   labs(color = "Population")+
@@ -256,6 +265,8 @@ p2 <- ggplot(data=region_points, aes(x=value, y=sex.avg.c..cM.Mb.)) +
 
 ggarrange(p1, p2, nrow = 2, ncol = 1,
           common.legend = TRUE, legend = "right", align = "v")
+ggsave("Divergence_Data_of_Chr2R.png", units="in", width=22, height=9, dpi=300, device = 'png')
+
 #22x9
 
 # dev.off()
@@ -299,6 +310,7 @@ p1 <- ggplot(data=ratio_data, aes(x=window, y=value))+
   theme(plot.title = element_text(hjust = 0.5), legend.key=element_rect(fill=NA),
         axis.text.x = element_blank(), axis.title.x = element_blank())
 
+
 p2 <- ggplot(data=region_points, aes(x=value, y=sex.avg.c..cM.Mb.)) + 
   geom_line() +
   ylab("Recombination\nrate (cM/Mb)")+
@@ -306,6 +318,8 @@ p2 <- ggplot(data=region_points, aes(x=value, y=sex.avg.c..cM.Mb.)) +
 
 ggarrange(p1, p2, nrow = 2, ncol = 1,
           common.legend = TRUE, legend = "right", align = "v")
+ggsave("Ratio_of_CO_to_ZI_2R.png", units="in", width=22, height=9, dpi=300, device = 'png')
+
 #22x9
 
 # dev.off()
