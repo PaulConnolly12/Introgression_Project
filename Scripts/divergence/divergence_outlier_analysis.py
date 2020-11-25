@@ -99,8 +99,8 @@ def main():
 	in_window_div = parse_win_div(input_window_file,pops_of_interest)
 	in_window_starts = parse_win_starts(input_start_file)
 
-	# Manually define the indexes of the population pair of interest
-	pops_of_interest = [1,21]
+	# Manually define the proportion of the windows to pick as outliers
+	outlier_proportion = 0.025
 
 	# Identify all outlier regions
 	pop_list,stat_line = find_outliers(in_window_div,in_window_starts)
