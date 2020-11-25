@@ -18,14 +18,25 @@ def parse_win_div(input_window_file,pops_of_interest):
 	in_window_div = []
 	with open(input_window_file) as win_file:
 		# Read the window file one line at a time
-		for (lnum, line) in enumerate(mel_file):
+		for (lnum, line) in enumerate(win_file):
 			div_vals = line.strip().split('\t')
+			div_vals_of_interest = []
 			for i in pops_of_interest:
+				div_vals_of_interest += [float(div_vals[i])]
+			in_window_div += [div_vals_of_interest]
+	return in_window_div
 
+# Parse the window starts
+def parse_win_div(input_start_file):
+	in_window_starts = []
+	with open(input_start_file) as start_file:
+		# Read the window file, it's only one line long :l
+		line = start_file.readline()
+		starts = line.strip().split('\t')
+		for start in starts:
+			in_window_starts += [int(start)]
+	return in_window_starts
 
-
-
-	return
 
 
 # Determine regions to search through at a finer scale
