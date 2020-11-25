@@ -14,7 +14,7 @@ library("lmtest")
 
 # Provide file name details
 prefix <- "all_pop_new_"
-chr <- "Chr2R"
+chr <- "ChrX"
 window_size <- 100000
 window_type <- "total"
 

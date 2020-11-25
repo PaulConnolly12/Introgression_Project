@@ -259,12 +259,12 @@ p1 <- ggplot(data=ratio_data, aes(x=`win_div$window`, y=value, group=variable, c
   scale_color_manual(values=group.colors)+
   guides(colour = guide_legend(override.aes = list(size = 5)))+
   theme(plot.title = element_text(hjust = 0.5), legend.key=element_rect(fill=NA),
-        axis.text.x = element_blank(), axis.title.x = element_blank()) + xlim(c(0,21500000))
+        axis.text.x = element_blank(), axis.title.x = element_blank()) + xlim(c(100,21500000))
 
 p2 <- ggplot(data=region_points, aes(x=value, y=sex.avg.c..cM.Mb.)) + 
   geom_line() +
   ylab("Recombination\nrate (cM/Mb)")+
-  xlab("Genomic position") + xlim(c(0,21500000))
+  xlab("Genomic position") + xlim(c(100,21500000))
 
 #data = as.numeric
 
@@ -295,7 +295,8 @@ rec_trunc <- subset(region_df, region_df$stop <= stop_val)
 
 
 # Put the data in plotting format
-region_points <- melt(region_df, id.vars = "sex.avg.c..cM.Mb.")
+temp_region_df <- data.frame(region_df$Start,region_df$Stop,region_df$sex.avg.c..cM.Mb.)
+region_points <- melt(temp_region_df, id.vars = "region_df.sex.avg.c..cM.Mb.")
 region_points$variable <- NULL
 region_points$value <- as.numeric(region_points$value)
 
@@ -319,7 +320,7 @@ p1 <- ggplot(data=ratio_data, aes(x=window, y=value))+
         axis.text.x = element_blank(), axis.title.x = element_blank())
 
 
-p2 <- ggplot(data=region_points, aes(x=value, y=sex.avg.c..cM.Mb.)) + 
+p2 <- ggplot(data=region_points, aes(x=value, y=region_df.sex.avg.c..cM.Mb.)) + 
   geom_line() +
   ylab("Recombination\nrate (cM/Mb)")+
   xlab("Genomic position")
