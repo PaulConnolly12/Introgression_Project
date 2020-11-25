@@ -27,7 +27,7 @@ def parse_win_div(input_window_file,pops_of_interest):
 	return in_window_div
 
 # Parse the window starts
-def parse_win_div(input_start_file):
+def parse_win_starts(input_start_file):
 	in_window_starts = []
 	with open(input_start_file) as start_file:
 		# Read the window file, it's only one line long :l
@@ -41,12 +41,19 @@ def parse_win_div(input_start_file):
 
 # Determine regions to search through at a finer scale
 def find_outliers(in_window_div,in_window_starts,outlier_proportion):
+	regions = []
 
 	return regions
 
 
 # Calculate filtered windows across each specified region
 def calc_filt_wind_per_region(regions,win_size):
+
+	return
+
+
+# Calculate fixed genomic length windows across each specified region
+def calc_total_wind_per_region(regions,win_size):
 
 	return
 
@@ -60,9 +67,9 @@ def parse_args():
 
 	parser.add_argument('--window_pop_list', nargs='+', required=False,
 						help='Provide the list of populations used in generating the ')
-	parser.add_argument('--window_divergence_file', nargs='+', required=True,
+	parser.add_argument('--window_divergence_file', required=True,
 						help='Provide the window divergence file to be used in analysis')
-	parser.add_argument('--window_starts_file', nargs='+', required=True,
+	parser.add_argument('--window_starts_file', required=True,
 						help='Provide the window starts file to be used in analysis')
 	parser.add_argument('--d_mel_count_files', nargs='+', required=True,
 						help='Provide the list of D. mel population count files to be used in analysis')
@@ -92,10 +99,10 @@ def main():
 	# Assign input arguments to file name variables
 	d_mel = [args.d_mel_count_file_path + f for f in args.d_mel_count_files]
 	d_sim = str(args.d_sim_count_file_path + args.d_sim_ref_count_file)
-	input_window_file = str(args.window_starts_file)
+	input_window_file = str(args.window_divergence_file)
 	input_start_file = str(args.window_starts_file)
 	out = str(args.out) + "_" + str(args.window_type) + "_" + str(args.window_size) + ".fine_div_window"
-	start = str(args.out)  + "_" + str(args.window_type) + "_" + str(args.window_size) + ".win_starts"
+	start = str(args.out)  + "_" + str(args.window_type) + "_" + str(args.window_size) + ".fine_win_starts"
 	stat = open((str(args.out)  + "_" + str(args.window_type) + "_" + str(args.window_size) + ".status"), 'w')
 	win_type = str(args.window_type)
 	size = int(args.window_size)
@@ -106,9 +113,14 @@ def main():
 	# Manually define the indexes of the population pair of interest
 	pops_of_interest = [1,21]
 
-	# Parse the inputs
+	# Parse the inputs into a list of 
+	# [[pop1_win_div1,pop2_win_div1],[pop1_win_div1,pop2_win_div1],..] pre-calculated widow divergences
 	in_window_div = parse_win_div(input_window_file,pops_of_interest)
+	# and [start1,start2,..] associated window starts
 	in_window_starts = parse_win_starts(input_start_file)
+
+	print(in_window_div[0:5])
+	print(in_window_starts[0:5])
 
 	# Manually define the proportion of the windows to pick as outliers
 	outlier_proportion = 0.025
@@ -117,11 +129,21 @@ def main():
 	pop_list,stat_line = find_outliers(in_window_div,in_window_starts,outlier_proportion)
 	stat.write(stat_line + "\n")
 
+	fine_div_win_list=[]
+	fine_win_starts=[]
 	# Determine whether total number of sites or filtered number of sites will be used to set window size
-	if (win_type == 'total'):
-		# Calculate per-site divergence within windows within regions, gives list of lists of per-window divergence in each region
-		
 	if (win_type == 'filtered'):
+		# Calculate per-site divergence within windows within regions, gives list of lists of per-window divergence in each region
+		fine_div_win_list,fine_win_starts,stat_line = calc_filt_wind_per_region(regions,win_size)
+		stat.write(stat_line + "\n")
+	if (win_type == 'total'):
+		fine_div_win_list,fine_win_starts,stat_line = calc_total_wind_per_region(regions,win_size)
+		stat.write(stat_line + "\n")
+
+	print(fine_div_win_list[0:5])
+	print(fine_win_starts[0:5])
+
+	return
 		
 
 if __name__ == '__main__':
