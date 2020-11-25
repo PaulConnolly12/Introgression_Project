@@ -29,7 +29,7 @@ def parse_win_div(input_window_file,pops_of_interest):
 
 
 # Determine regions to search through at a finer scale
-def find_outliers(in_window_div,in_window_starts):
+def find_outliers(in_window_div,in_window_starts,outlier_proportion):
 
 	return regions
 
@@ -103,7 +103,7 @@ def main():
 	outlier_proportion = 0.025
 
 	# Identify all outlier regions
-	pop_list,stat_line = find_outliers(in_window_div,in_window_starts)
+	pop_list,stat_line = find_outliers(in_window_div,in_window_starts,outlier_proportion)
 	stat.write(stat_line + "\n")
 
 	# Determine whether total number of sites or filtered number of sites will be used to set window size
