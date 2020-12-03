@@ -365,8 +365,9 @@ def create_starts(window_starts,file_name):
 #Creste an output file with the divergence positions
 def create_divergence_position(missing_masked,file_name):
 	with open((str(file_name)),"w") as outfile:
-		line_to_print = "\t".join([str(x) for x in missing_masked])
-		outfile.write(line_to_print)
+		for i in range(len(missing_masked[0])):
+			line_to_print = "\t".join([str(missing_masked[j][i]) for j in range(len(missing_masked))]) + "\n"
+			outfile.write(line_to_print)
 
 # Main function
 def main():
