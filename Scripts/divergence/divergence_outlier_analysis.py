@@ -42,7 +42,14 @@ def parse_win_starts(input_start_file):
 # Determine regions to search through at a finer scale
 def find_outliers(in_window_div,in_window_starts,outlier_proportion):
 	regions = []
+	#Sort window divergence values from high to low
+	sorted_window_div = sorted(in_window_div, reverse=True)
+	#Calculate how many regions to pull
+	pulled_region_count = int(len(in_window_div) * outlier_proportion)
+	#Add the outliers to a new list
+	div_outliers = sorted_window_div[0:pulled_region_count]
 
+	regions =
 	return regions
 
 
