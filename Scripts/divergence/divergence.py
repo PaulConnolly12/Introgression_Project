@@ -362,6 +362,11 @@ def create_starts(window_starts,file_name):
 	outfile.write(line_to_print)
 	outfile.close()
 
+#Creste an output file with the divergence positions
+def create_divergence_position(missing_masked,file_name):
+	with open((str(file_name)),"w") as outfile:
+		line_to_print = "\t".join([str(x) for x in missing_masked])
+		outfile.write(line_to_print)
 
 # Main function
 def main():
@@ -379,7 +384,7 @@ def main():
 	stat = open((str(args.out)  + "_" + str(args.window_type) + "_" + str(args.window_size) + ".status"), 'w')
 	win_type = str(args.window_type)
 	size = int(args.window_size)
-
+	position = str(args.out) + "_" + str(args.window_type) + "_" + str(args.window_size) + ".div_positions"
 	stat.write("Window size: " + str(size) + "\n" + "Window type: " + str(win_type) + "\n")
 
 	# Create list of lists of divergence counts at each site in each population
@@ -413,6 +418,8 @@ def main():
 	create_missing(miss_idx=miss_idx, miss_cnt=miss_cnt, missing=missing)
 	create_div(full_div_list=full_div_list, div=div)
 	create_fname_file(filenames=args.d_mel_count_files, file=(str(args.out)  + "_" + str(args.window_type) + "_" + str(args.window_size) + ".names"))
+
+	create_divergence_position(missing_masked=missing_masked, file_name=position)
 
 	create_starts(window_starts=window_starts,file_name=start)
 
