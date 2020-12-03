@@ -54,7 +54,7 @@ def find_outliers(in_window_div,in_window_starts,outlier_proportion):
 	#Create lists for start and end positions of each region
 	outlier_start_positions = []
 	outlier_end_positions = []
-	input_window_size = in_window_starts[1] - in_window_starts[0] - 1
+	input_window_size = in_window_starts[1] - in_window_starts[0]
 
 	for index in div_indexes:
 		outlier_start_positions.append(in_window_starts[index])
@@ -65,14 +65,37 @@ def find_outliers(in_window_div,in_window_starts,outlier_proportion):
 	return regions
 
 
+# Pull out the masked per-position divergence values for the pops of interest
+def get_reg_missing_masked(regions,input_pos_div_file,pop_indexes):
+	(reg_starts,reg_ends) = regions
+
+	reg_missing_masked_sets = []
+	for (i, start) in enumerate(reg_starts):
+		reg_missing_masked = [[],[]]
+		for j in range(start,reg_ends[i]):
+			pos_div_line = linecache.getline(input_pos_div_file,j).strip().split('\t')
+			value_pair = []
+			for k in pop_indexes:
+				if pos_div_line[k] == "N":
+					value_pair.append("N")
+				else:
+					value_pair.append(float(pos_div_line[k]))
+			reg_missing_masked[0].append(value_pair[0])
+			reg_missing_masked[1].append(value_pair[1])
+		reg_missing_masked_sets.append(reg_missing_masked)
+
+	return reg_missing_masked_sets
+
+
 # Calculate filtered windows across each specified region
-def calc_filt_wind_per_region(regions,win_size):
+def calc_filt_wind_per_region(regions,win_size,reg_missing_masked_sets):
+
 
 	return
 
 
 # Calculate fixed genomic length windows across each specified region
-def calc_total_wind_per_region(regions,win_size):
+def calc_total_wind_per_region(regions,win_size,reg_missing_masked_sets):
 
 	return
 
@@ -88,6 +111,8 @@ def parse_args():
 						help='Provide the list of populations used in generating the ')
 	parser.add_argument('--window_divergence_file', required=True,
 						help='Provide the window divergence file to be used in analysis')
+	parser.add_argument('--position_divergence_file', required=True,
+						help='Provide the per-position divergence file to be used in analysis')
 	parser.add_argument('--window_starts_file', required=True,
 						help='Provide the window starts file to be used in analysis')
 	parser.add_argument('--d_mel_count_files', nargs='+', required=True,
@@ -119,6 +144,7 @@ def main():
 	d_mel = [args.d_mel_count_file_path + f for f in args.d_mel_count_files]
 	d_sim = str(args.d_sim_count_file_path + args.d_sim_ref_count_file)
 	input_window_file = str(args.window_divergence_file)
+	input_pos_div_file = str(args.position_divergence_file)
 	input_start_file = str(args.window_starts_file)
 	out = str(args.out) + "_" + str(args.window_type) + "_" + str(args.window_size) + ".fine_div_window"
 	start = str(args.out)  + "_" + str(args.window_type) + "_" + str(args.window_size) + ".fine_win_starts"
@@ -145,18 +171,23 @@ def main():
 	outlier_proportion = 0.025
 
 	# Identify all outlier regions
-	pop_list,stat_line = find_outliers(in_window_div,in_window_starts,outlier_proportion)
-	stat.write(stat_line + "\n")
+	# Add , stat line?
+	regions = find_outliers(in_window_div,in_window_starts,outlier_proportion)
+	# stat.write(stat_line + "\n")
+
+	# Retrieve the pre-calculated per-position divergence values
+	reg_missing_masked_sets = get_reg_missing_masked(regions,input_pos_div_file,pop_indexes)
+	# stat.write(stat_line + "\n")
 
 	fine_div_win_list=[]
 	fine_win_starts=[]
 	# Determine whether total number of sites or filtered number of sites will be used to set window size
 	if (win_type == 'filtered'):
 		# Calculate per-site divergence within windows within regions, gives list of lists of per-window divergence in each region
-		fine_div_win_list,fine_win_starts,stat_line = calc_filt_wind_per_region(regions,win_size)
+		fine_div_win_list,fine_win_starts,stat_line = calc_filt_wind_per_region(regions,win_size,reg_missing_masked_sets)
 		stat.write(stat_line + "\n")
 	if (win_type == 'total'):
-		fine_div_win_list,fine_win_starts,stat_line = calc_total_wind_per_region(regions,win_size)
+		fine_div_win_list,fine_win_starts,stat_line = calc_total_wind_per_region(regions,win_size,reg_missing_masked_sets)
 		stat.write(stat_line + "\n")
 
 	print(fine_div_win_list[0:5])
