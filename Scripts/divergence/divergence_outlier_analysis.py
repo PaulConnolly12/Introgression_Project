@@ -3,14 +3,14 @@
 
 
 # Run with the following command:
-## python divergence_outlier_analysis.py --d_mel_count_files <list of files> --d_sim_ref_count_file <file> --d_mel_count_file_path <path to files> --d_sim_count_file_path <path to file> --window_size <int> --window_type <filtered or total> --out <path + filename>
-## python divergence_outlier_analysis.py --d_mel_count_files AllCounts_CO_Chr2R.txt AllCounts_ZI_Chr2R.txt --d_sim_ref_count_file AllCounts_sim_Chr2R.txt --d_sim_count_file_path /Volumes/4_TB_RAID_Set_1/DPGP2plus/wrap1kb/counts/ --d_mel_count_file_path /Volumes/4_TB_RAID_Set_1/DPGP2plus/wrap1kb/counts/ --window_size 100 --out /Volumes/4_TB_RAID_Set_1/DPGP2plus/wrap1kb/PFC/ 
+##python divergence_outlier_analysis.py --window_divergence_file <filename> --position_divergence_file <file> --window_starts_file <file> --window_size <size> --window_type <type> --out <path and prefix>
+##python divergence_outlier_analysis.py --window_divergence_file test_run2_total_10.div_window --position_divergence_file test_run2_total_10.div_positions --window_starts_file test_run2_total_10.win_starts --window_size 3 --window_type filtered --out outlier_testrun_1
 
 # Import libraries 
 import argparse
 import linecache
 import datetime
-
+import math
 ### Define functions
 
 # Parse the window divergence values
@@ -41,16 +41,24 @@ def parse_win_starts(input_start_file):
 
 # Determine regions to search through at a finer scale
 def find_outliers(in_window_div,in_window_starts,outlier_proportion):
+	window_ratios = []
+	for i in range(len(in_window_div)):
+		ratio = in_window_div[i][0]/in_window_div[i][1]
+		if math.isnan(in_window_div[i][0]):
+			ratio = -1
+		window_ratios.append(ratio)
 	#Sort window divergence values from high to low
-	sorted_window_div = sorted(in_window_div, reverse=True)
+	sorted_window_div = sorted(window_ratios, reverse=True)
+	#print(sorted_window_div)
 	#Calculate how many regions to pull
 	pulled_region_count = int(len(in_window_div) * outlier_proportion)
+	pulled_region_count = max(pulled_region_count,1)
 	#Add the outliers to a new list
 	div_outliers = sorted_window_div[0:pulled_region_count]
 	div_indexes = []
 	#Append index values from in_window_starts to assosiated values in div_outliers
 	for value in div_outliers:
-		div_indexes.append(in_window_div.index(value))
+		div_indexes.append(window_ratios.index(value))
 	#Create lists for start and end positions of each region
 	outlier_start_positions = []
 	outlier_end_positions = []
@@ -68,18 +76,21 @@ def find_outliers(in_window_div,in_window_starts,outlier_proportion):
 # Pull out the masked per-position divergence values for the pops of interest
 def get_reg_missing_masked(regions,input_pos_div_file,pop_indexes):
 	(reg_starts,reg_ends) = regions
-
+	#print(regions)
 	reg_missing_masked_sets = []
 	for (i, start) in enumerate(reg_starts):
 		reg_missing_masked = [[],[]]
 		for j in range(start,reg_ends[i]):
-			pos_div_line = linecache.getline(input_pos_div_file,j).strip().split('\t')
+			#print(linecache.getline(input_pos_div_file,j+1))
+			pos_div_line = linecache.getline(input_pos_div_file,j+1).strip().split('\t')
 			value_pair = []
+			#print(pos_div_line)
 			for k in pop_indexes:
 				if pos_div_line[k] == "N":
 					value_pair.append("N")
 				else:
 					value_pair.append(float(pos_div_line[k]))
+			#print(value_pair)
 			reg_missing_masked[0].append(value_pair[0])
 			reg_missing_masked[1].append(value_pair[1])
 		reg_missing_masked_sets.append(reg_missing_masked)
@@ -90,6 +101,7 @@ def get_reg_missing_masked(regions,input_pos_div_file,pop_indexes):
 # Calculate filtered windows across each specified region
 def calc_filt_wind_per_region(regions,win_size,reg_missing_masked_sets):
 
+	#print(reg_missing_masked_sets)
 
 	region_window_div_list = []
 	region_window_starts = []
@@ -101,14 +113,14 @@ def calc_filt_wind_per_region(regions,win_size,reg_missing_masked_sets):
 		pop2_divergence = reg_missing_masked_sets[i][1]
 
 		region_start = regions[0][i]
-		window_starts = list(region_start)
+		window_starts = [region_start]
 		current_win_length = 0
 		pop1_filtered = []
 		pop2_filtered = []
 
 		for i in range(len(pop1_divergence)):
 			# Record the current window start index if a window size of usable sites has passed
-			if current_win_length == size:
+			if current_win_length == win_size:
 				window_starts.append(region_start + i)
 				current_win_length = 0 
 
@@ -132,7 +144,7 @@ def calc_filt_wind_per_region(regions,win_size,reg_missing_masked_sets):
 			window_div_pop = list()
 
 			# Perform per-site divergence calculations across each window
-			for window in range(0, ((len(pop)//win_size)+1)):
+			for window in range(0, (((len(pop)-1)//win_size)+1)):
 				# Sum all of the divergent counts across window
 				sum_div = sum(pop[start:end])
 				# Get per-site divergence by dividing these by the number of sites
@@ -168,34 +180,33 @@ def calc_total_wind_per_region(regions,win_size,reg_missing_masked_sets):
 #   regions starts, region ends, and associated divergence values
 def create_table(region_window_div,region_window_starts,regions,out):
 
+	num_entries = 0
+
 	# Write outfile using path and name specified in input argument
 	with open((out), "w") as outfile:
-		headerline = "region_index\tpopulation_indexes\twindow_starts\twindow_ends\tregion_starts\tregion_ends\n"
-		# Initialize list which will hold row values (same window in different populations)
-		rows = list()
-
-		# Transform the list of windows in each population to list of populations for each window
-		# For every window
+		headerline = "region_index\tpopulation_indexes\twindow_starts\twindow_ends\tregion_starts\tregion_ends\tdivergence\n"
+		outfile.write(headerline)
 		for i in range(0, len(region_window_div)):
+			region_start = regions[0][i]
+			region_end = regions[1][i] - 1
 
 			for j in range(0, len(region_window_div[i])):
 				
 				for k in range(0,len(region_window_div[i][0])):
+					dataline = str(i) + "\t" + str(j) + "\t"
+					win_start = region_window_starts[i][k]
+					win_end = 0
+					if k == len(region_window_div[i][0])-1:
+						win_end = region_end
+					else:
+						win_end = region_window_starts[i][k+1] - 1
 
-			# Create a list of that windows's divergence value in each population
-			col_vals = list()
-
-			# For each element (population) in the list of population windows
-			for win in window_div:
-				# Add it to list that holds the same window value in each population
-				col_vals.append(win[i])
-
-			rows.append(col_vals)
-			# Print this row to the output file
-			line_to_print = "\t".join([str(x) for x in col_vals]) + "\n"
-			outfile.write(line_to_print)
+					dataline += str(win_start) +"\t" + str(win_end) + "\t" + str(region_start) + "\t" + str(region_end)
+					dataline += "\t" + str(region_window_div[i][j][k]) + "\n"
+					outfile.write(dataline)
+					num_entries += 1
 	
-	status = "Window based divergence outfile contains " + str(len(rows)) + " rows and " + str(len(rows[0])) + " columns"
+	status = str(num_entries)
 	return status
 
 
@@ -213,13 +224,13 @@ def parse_args():
 						help='Provide the per-position divergence file to be used in analysis')
 	parser.add_argument('--window_starts_file', required=True,
 						help='Provide the window starts file to be used in analysis')
-	parser.add_argument('--d_mel_count_files', nargs='+', required=True,
+	parser.add_argument('--d_mel_count_files', nargs='+', required=False,
 						help='Provide the list of D. mel population count files to be used in analysis')
-	parser.add_argument('--d_sim_ref_count_file', required=True,
+	parser.add_argument('--d_sim_ref_count_file', required=False,
 						help='Provide the name of the D. sim reference count file')
-	parser.add_argument('--d_mel_count_file_path', required=True,
+	parser.add_argument('--d_mel_count_file_path', required=False,
 						help='Provide the path to these count files')
-	parser.add_argument('--d_sim_count_file_path', required=True,
+	parser.add_argument('--d_sim_count_file_path', required=False,
 						help='Provide the path to this count file')		
 	parser.add_argument('--window_size', required=True,
 						help='Size of windows to calculate divergence across')
@@ -242,8 +253,8 @@ def main():
 	args = parse_args()
 
 	# Assign input arguments to file name variables
-	d_mel = [args.d_mel_count_file_path + f for f in args.d_mel_count_files]
-	d_sim = str(args.d_sim_count_file_path + args.d_sim_ref_count_file)
+	#d_mel = [args.d_mel_count_file_path + f for f in args.d_mel_count_files]
+	#d_sim = str(args.d_sim_count_file_path + args.d_sim_ref_count_file)
 	input_window_file = str(args.window_divergence_file)
 	input_pos_div_file = str(args.position_divergence_file)
 	input_start_file = str(args.window_starts_file)
@@ -257,8 +268,8 @@ def main():
 	stat.write("Window size: " + str(size) + "\n" + "Window type: " + str(win_type) + "\n")
 
 	# Manually define the indexes of the population pair of interest
-	pops_of_interest = [1,21]
-
+	#pops_of_interest = [1,21]
+	pops_of_interest = [0,1]
 	# Parse the inputs into a list of 
 	# [[pop1_win_div1,pop2_win_div1],[pop1_win_div1,pop2_win_div1],..] pre-calculated widow divergences
 	in_window_div = parse_win_div(input_window_file,pops_of_interest)
@@ -277,7 +288,7 @@ def main():
 	# stat.write(stat_line + "\n")
 
 	# Retrieve the pre-calculated per-position divergence values
-	reg_missing_masked_sets = get_reg_missing_masked(regions,input_pos_div_file,pop_indexes)
+	reg_missing_masked_sets = get_reg_missing_masked(regions,input_pos_div_file,pops_of_interest)
 	# stat.write(stat_line + "\n")
 
 	fine_div_win_list=[]
@@ -285,16 +296,18 @@ def main():
 	# Determine whether total number of sites or filtered number of sites will be used to set window size
 	if (win_type == 'filtered'):
 		# Calculate per-site divergence within windows within regions, gives list of lists of per-window divergence in each region
-		fine_div_win_list,fine_win_starts,stat_line = calc_filt_wind_per_region(regions,win_size,reg_missing_masked_sets)
+		fine_div_win_list,fine_win_starts,stat_line = calc_filt_wind_per_region(regions,size,reg_missing_masked_sets)
 		stat.write(stat_line + "\n")
 	if (win_type == 'total'):
-		fine_div_win_list,fine_win_starts,stat_line = calc_total_wind_per_region(regions,win_size,reg_missing_masked_sets)
+		fine_div_win_list,fine_win_starts,stat_line = calc_total_wind_per_region(regions,size,reg_missing_masked_sets)
 		stat.write(stat_line + "\n")
 
 	print(fine_div_win_list[0:5])
 	print(fine_win_starts[0:5])
 
-
+	stat_line = create_table(fine_div_win_list,fine_win_starts,regions,out)
+	stat.write(stat_line + "\n")
+	stat.close()
 	return
 		
 

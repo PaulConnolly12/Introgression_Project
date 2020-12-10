@@ -1,0 +1,9 @@
+region_index	population_indexes	window_starts	window_ends	region_starts	region_ends	divergence
+0	0	30	32	30	39	0.6666666666666666
+0	0	33	35	30	39	1.0
+0	0	36	38	30	39	1.0
+0	0	39	39	30	39	1.0
+0	1	30	32	30	39	0.6666666666666666
+0	1	33	35	30	39	0.0
+0	1	36	38	30	39	0.6666666666666666
+0	1	39	39	30	39	1.0
