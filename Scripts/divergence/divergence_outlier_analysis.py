@@ -91,14 +91,112 @@ def get_reg_missing_masked(regions,input_pos_div_file,pop_indexes):
 def calc_filt_wind_per_region(regions,win_size,reg_missing_masked_sets):
 
 
-	return
+	region_window_div_list = []
+	region_window_starts = []
 
+
+	
+	for i in range(len(reg_missing_masked_sets)):
+		pop1_divergence = reg_missing_masked_sets[i][0]
+		pop2_divergence = reg_missing_masked_sets[i][1]
+
+		region_start = regions[0][i]
+		window_starts = list(region_start)
+		current_win_length = 0
+		pop1_filtered = []
+		pop2_filtered = []
+
+		for i in range(len(pop1_divergence)):
+			# Record the current window start index if a window size of usable sites has passed
+			if current_win_length == size:
+				window_starts.append(region_start + i)
+				current_win_length = 0 
+
+			# Only transfer the divergence values for non-masked sites
+			if pop1_divergence[i] != "N":
+				pop1_filtered.append(pop1_divergence[i])
+				pop2_filtered.append(pop2_divergence[i])
+				current_win_length += 1
+
+		region_window_starts.append(window_starts)
+
+		window_div_list = []
+
+		# For each population list in filtered list of counts
+		for pop in [pop1_filtered,pop2_filtered]:
+			# Set a start index for window
+			start = 0
+			# Set an end index for window that is equal to specified window size
+			end = win_size
+			# List that stores per-site divergence values for each window
+			window_div_pop = list()
+
+			# Perform per-site divergence calculations across each window
+			for window in range(0, ((len(pop)//win_size)+1)):
+				# Sum all of the divergent counts across window
+				sum_div = sum(pop[start:end])
+				# Get per-site divergence by dividing these by the number of sites
+				div_ps = sum_div/len(pop[start:end])
+				# Increment start and end indices by the specified size of the window
+				start += win_size
+				end += win_size
+				# Add this window's per-site divergence to the list
+				window_div_pop.append(div_ps)
+
+			# Add the list of window values for this population to the master list
+			window_div_list.append(window_div_pop)
+		# Add the list of population specific window values for this region to the master list
+		region_window_div_list.append(window_div_list)
+
+	#status = "Number of windows (window size based on called sites): " + str(len(region_window_div_list[0]))
+	status = "Finished fine window divergence calcutlations per region"
+	return region_window_div_list,region_window_starts,status
+
+
+#rather than a list of pop with their div, just two named po
+#extra for loop to go through each region
+#run through divergence calcs
+#get output into an output file
 
 # Calculate fixed genomic length windows across each specified region
 def calc_total_wind_per_region(regions,win_size,reg_missing_masked_sets):
 
 	return
 
+
+# Create output table composed of columns of region indexes, population indexes, window starts, window ends,
+#   regions starts, region ends, and associated divergence values
+def create_table(region_window_div,region_window_starts,regions,out):
+
+	# Write outfile using path and name specified in input argument
+	with open((out), "w") as outfile:
+		headerline = "region_index\tpopulation_indexes\twindow_starts\twindow_ends\tregion_starts\tregion_ends\n"
+		# Initialize list which will hold row values (same window in different populations)
+		rows = list()
+
+		# Transform the list of windows in each population to list of populations for each window
+		# For every window
+		for i in range(0, len(region_window_div)):
+
+			for j in range(0, len(region_window_div[i])):
+				
+				for k in range(0,len(region_window_div[i][0])):
+
+			# Create a list of that windows's divergence value in each population
+			col_vals = list()
+
+			# For each element (population) in the list of population windows
+			for win in window_div:
+				# Add it to list that holds the same window value in each population
+				col_vals.append(win[i])
+
+			rows.append(col_vals)
+			# Print this row to the output file
+			line_to_print = "\t".join([str(x) for x in col_vals]) + "\n"
+			outfile.write(line_to_print)
+	
+	status = "Window based divergence outfile contains " + str(len(rows)) + " rows and " + str(len(rows[0])) + " columns"
+	return status
 
 
 # Input arguments
@@ -132,7 +230,10 @@ def parse_args():
 						help='Provide path and prefix of output files')
 
 	args = parser.parse_args()
+
 	return args
+
+
 
 # Main function
 def main():
@@ -192,6 +293,7 @@ def main():
 
 	print(fine_div_win_list[0:5])
 	print(fine_win_starts[0:5])
+
 
 	return
 		

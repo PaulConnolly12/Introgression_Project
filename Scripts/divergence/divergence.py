@@ -297,7 +297,7 @@ def per_site_total(size, missing_masked):
 def create_table(window_div, out):
 
 	# Write outfile using path and name specified in input argument
-	outfile = open((str(out)), "w")
+	outfile = open(out, "w")
 	# Initialize list which will hold row values (same window in different populations)
 	rows = list()
 
@@ -316,7 +316,7 @@ def create_table(window_div, out):
 		# Print this row to the output file
 		line_to_print = "\t".join([str(x) for x in col_vals]) + "\n"
 		outfile.write(line_to_print)
-	
+	outfile.close()
 	status = "Window based divergence outfile contains " + str(len(rows)) + " rows and " + str(len(rows[0])) + " columns"
 	return status
 
