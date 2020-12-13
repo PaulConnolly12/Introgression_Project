@@ -3,7 +3,7 @@
 
 # Set working directory
 setwd("C:/Users/paulc/OneDrive/Documents/Introgression_Project/Results/Divergence/new_data/")
-# setwd("/Users/cmcallester/Documents/Pool\ Lab/Introgression/Introgression_Project/Outputs/divergence")
+# setwd("/Users/cmcallester/Documents/Pool\ Lab/Introgression/Introgression_Project/Output/divergence")
 
 #install.packages("ggplot2")
 library("ggplot2")
