@@ -5,7 +5,7 @@ Simulans Introgression Project Information
 
 This document describes the location and usage of relevant scripts as well as their output
 
-## Directory Information on GenePool Lab Server
+## Original Directory Information on GenePool Lab Server
 
 Working Directory: /Volumes/4_TB_RAID_Set_1/DPGP2plus/wrap1kb/EKH/
 Scripts: /Volumes/4_TB_RAID_Set_1/DPGP2plus/wrap1kb/EKH/scripts/
@@ -19,7 +19,7 @@ Contributors
 ----------------------------------
 Emma Howell\
 Paul Connoly\
-Chris McAllester\
+Chris McAllester
 
 
 Available Scripts
@@ -103,6 +103,6 @@ Installation
 
 Download the scripts from this repository:
 
-	git clone https://github.com/MesserLab/SLiM.git
+	git clone https://github.com/PaulConnolly12/Introgression_Project
 
 Scripts present require python or R to run. 
