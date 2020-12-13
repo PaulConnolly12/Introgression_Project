@@ -4,7 +4,7 @@
 
 # Run with the following command:
 ##python divergence_outlier_analysis.py --pop_list <pop abbreviations separated by spaces> --pop_indexes <pop indexes separated by spaces> --window_divergence_file <filename> --position_divergence_file <file> --window_starts_file <file> --window_size <size> --window_type <type> --out <path and prefix>
-##python divergence_outlier_analysis.py --pop_list CO ZI --pop_indexes 1 21 --window_divergence_file test_run2_total_10.div_window --position_divergence_file test_run2_total_10.div_positions --window_starts_file test_run2_total_10.win_starts --window_size 3 --window_type filtered --out outlier_testrun_1
+##python divergence_outlier_analysis.py --pop_list CO ZI --pop_index_list 1 21 --window_divergence_file test_run2_total_10.div_window --position_divergence_file test_run2_total_10.div_positions --window_starts_file test_run2_total_10.win_starts --window_size 3 --window_type filtered --out outlier_testrun_1
 
 # Import libraries 
 import argparse
@@ -342,8 +342,6 @@ def main():
 		fine_div_win_list,fine_win_starts,stat_line = calc_total_wind_per_region(regions,size,reg_missing_masked_sets)
 		stat.write(stat_line + "\n")
 
-	# print(fine_div_win_list[0:5])
-	# print(fine_win_starts[0:5])
 
 	stat_line = create_table(fine_div_win_list,fine_win_starts,regions,pop_names,out)
 	stat.write(stat_line + "\n")
