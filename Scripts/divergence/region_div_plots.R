@@ -54,7 +54,7 @@ data_prep <- function(prefix,chr,window_type,window_size){
   rec <- read.csv("mel_recomb.csv")
   
   # Subset data by genomic region
-  region_df <- subset(rec, rec$?..Arm == chr)
+  region_df <- subset(rec, rec$Arm == chr)
   region_df$?..Arm <- NULL
   
   # Add columns names to full divergence df

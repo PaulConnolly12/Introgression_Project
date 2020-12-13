@@ -200,7 +200,7 @@ def create_table(region_window_div,region_window_starts,regions,pop_names,out):
 	# Write outfile using path and name specified in input argument
 	with open((out), "w") as outfile:
 		headerline = "region_index\twindow_index\t"+str(pop_names[0])+"_divergence\t"+str(pop_names[1])+\
-			"_divergence\t"+str(pop_names[0])+"_to_"+str(pop_names[1])+"_ratio\twindow_starts\twindow_ends\tregion_starts\tregion_ends\tregion_"\
+			"_divergence\t"+str(pop_names[0])+"_to_"+str(pop_names[1])+"_ratio\twindow_start\twindow_end\tregion_start\tregion_end\tregion_"\
 			+str(pop_names[0])+"_divergence\tregion_"+str(pop_names[1])+"_divergence\tregion_"+str(pop_names[0])+"_to_"+str(pop_names[1])+"_ratio\n"
 		outfile.write(headerline)
 		for i in range(0, len(region_window_div)):
@@ -211,6 +211,7 @@ def create_table(region_window_div,region_window_starts,regions,pop_names,out):
 			region_pop2_div = regions[4][i]
 				
 			for k in range(0,len(region_window_div[i][0])):
+			# for k in range(0,len(region_window_div[i][0])-1):
 				# Record the region/window indixes
 				dataline = str(i) + "\t" + str(k) + "\t"
 				# Record the window divergence data
