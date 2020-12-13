@@ -39,11 +39,11 @@ def parse_win_starts(input_start_file):
 
 # A temporary function to calculate the chromosome length from the inputs
 def get_chrom_length(div_pos_file):
-    with open(div_pos_file) as f:
-    	i = -1
-        for i, l in enumerate(f):
-            pass
-    return i + 1
+	with open(div_pos_file) as f:
+		i = -1
+		for i, l in enumerate(f):
+			pass
+	return i + 1
 
 # Determine regions to search through at a finer scale
 def find_outliers(in_window_div,in_window_starts,outlier_proportion,chrom_len):

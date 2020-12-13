@@ -25,7 +25,7 @@ library("ggforce")
 
 # Provide file name details
 prefix <- "outlier_"
-chr <- "Chr2L"
+chr <- "ChrX"
 window_size <- 1000
 window_type <- "filtered"
 
@@ -51,7 +51,7 @@ group.colors <- c(CO="purple", ZI=pal_sa[6], Ratio="black")
 # PLOTTING FUNCTIONS
 region_data <- subset(win_div, win_div$region_index == 0)
 plot_outlier_div <- function(region_data){
-  vars_of_intrest <- data.frame(region_data$window_starts,region_data$CO_divergence, region_data$ZI_divergence)
+  vars_of_intrest <- data.frame(region_data$window_start,region_data$CO_divergence, region_data$ZI_divergence)
   colnames(vars_of_intrest) <- c("Start","CO", "ZI")
   melted_region_data <- melt(vars_of_intrest, id = "Start")
   p1 <- ggplot(data=melted_region_data, aes(x=Start, y=value, group=variable, color=variable)) +
@@ -64,7 +64,7 @@ plot_outlier_div <- function(region_data){
     guides(colour = guide_legend(override.aes = list(size = 5)))+
     theme(plot.title = element_text(hjust = 0.5), legend.key=element_rect(fill=NA),
           axis.text.x = element_blank(), axis.title.x = element_blank())
-  p2 <- ggplot(data=region_data, aes(x=window_starts, y=CO_to_ZI_ratio)) + 
+  p2 <- ggplot(data=region_data, aes(x=window_start, y=CO_to_ZI_ratio)) + 
     geom_line() +
     ylab("Divergence\nratio")+
     xlab("Genomic position")
