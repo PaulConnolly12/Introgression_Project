@@ -109,3 +109,10 @@ cor.test( ~ corr_tab$ratio_CO_ZI + corr_tab$recombination,
           continuity = FALSE,
           conf.level = 0.95) # p-value = 0.8473
 
+# Perform Pearson correlation
+cor.test( ~ corr_tab$ratio_CO_ZI + corr_tab$recombination,
+          data=corr_tab,
+          method = "pearson",
+          continuity = FALSE,
+          conf.level = 0.95) # p-value = 0.8473
+
