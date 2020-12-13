@@ -37,12 +37,19 @@ def parse_win_starts(input_start_file):
 			in_window_starts += [int(start)]
 	return in_window_starts
 
-
+# A temporary function to calculate the chromosome length from the inputs
+def get_chrom_length(div_pos_file):
+    with open(div_pos_file) as f:
+    	i = -1
+        for i, l in enumerate(f):
+            pass
+    return i + 1
 
 # Determine regions to search through at a finer scale
-def find_outliers(in_window_div,in_window_starts,outlier_proportion):
+def find_outliers(in_window_div,in_window_starts,outlier_proportion,chrom_len):
+	num_windows = len(in_window_div)
 	window_ratios = []
-	for i in range(len(in_window_div)):
+	for i in range(num_windows):
 		ratio = in_window_div[i][0]/in_window_div[i][1]
 		if math.isnan(in_window_div[i][0]):
 			ratio = -1
@@ -51,7 +58,7 @@ def find_outliers(in_window_div,in_window_starts,outlier_proportion):
 	sorted_window_div = sorted(window_ratios, reverse=True)
 	#print(sorted_window_div)
 	#Calculate how many regions to pull
-	pulled_region_count = int(len(in_window_div) * outlier_proportion)
+	pulled_region_count = int(num_windows * outlier_proportion)
 	pulled_region_count = max(pulled_region_count,1)
 	#Add the outliers to a new list
 	div_outliers = sorted_window_div[0:pulled_region_count]
@@ -62,15 +69,18 @@ def find_outliers(in_window_div,in_window_starts,outlier_proportion):
 	#Create lists for start and end positions of each region
 	outlier_start_positions = []
 	outlier_end_positions = []
-	input_window_size = in_window_starts[1] - in_window_starts[0]
+	# input_window_size = in_window_starts[1] - in_window_starts[0]
 	outlier_pop1_div = []
 	outlier_pop2_div = []
 
 	for index in div_indexes:
 		outlier_start_positions.append(in_window_starts[index])
-		outlier_end_positions.append(in_window_starts[index] + input_window_size - 1)
-		outlier_pop1_div.append(in_window_div[i][0])
-		outlier_pop2_div.append(in_window_div[i][1])
+		if index == num_windows - 1:
+			outlier_end_positions.append(chrom_len - 1)
+		else:
+			outlier_end_positions.append(in_window_starts[index+1] - 1)
+		outlier_pop1_div.append(in_window_div[index][0])
+		outlier_pop2_div.append(in_window_div[index][1])
 	
 	regions = (outlier_start_positions,outlier_end_positions,div_outliers,outlier_pop1_div,outlier_pop2_div)	
 	
@@ -242,6 +252,9 @@ def parse_args():
 						help='Provide the per-position divergence file to be used in analysis')
 	parser.add_argument('--window_starts_file', required=True,
 						help='Provide the window starts file to be used in analysis')
+	# parser.add_argument('--input_window_size', required=False,
+	# 					help='Size of windows to calculate divergence across',
+	# 					default=100000)
 	parser.add_argument('--d_mel_count_files', nargs='+', required=False,
 						help='Provide the list of D. mel population count files to be used in analysis')
 	parser.add_argument('--d_sim_ref_count_file', required=False,
@@ -249,7 +262,7 @@ def parse_args():
 	parser.add_argument('--d_mel_count_file_path', required=False,
 						help='Provide the path to these count files')
 	parser.add_argument('--d_sim_count_file_path', required=False,
-						help='Provide the path to this count file')		
+						help='Provide the path to this count file')
 	parser.add_argument('--window_size', required=True,
 						help='Size of windows to calculate divergence across')
 	parser.add_argument('--window_type', required=False,
@@ -283,11 +296,14 @@ def main():
 	# start = str(args.out)  + "_" + str(args.window_type) + "_" + str(args.window_size) + ".fine_win_starts"
 	stat = open((str(args.out)  + "_" + str(args.window_type) + "_" + str(args.window_size) + ".status"), 'w')
 
+	# Generate further input parameters
+	# input_window_size = int(args.input_window_size)
+
+	# Generate the analysis parameters
 	win_type = str(args.window_type)
 	size = int(args.window_size)
 	outlier_proportion = float(args.outlier_proportion)
 	pop_names = args.pop_list
-	print(pop_names)
 	pop_input_indexes = [int(i) for i in args.pop_index_list]
 
 
@@ -306,7 +322,8 @@ def main():
 
 	# Identify all outlier regions
 	# Add , stat line?
-	regions = find_outliers(in_window_div,in_window_starts,outlier_proportion)
+	chrom_len = get_chrom_length(input_pos_div_file)
+	regions = find_outliers(in_window_div,in_window_starts,outlier_proportion,chrom_len)
 	# stat.write(stat_line + "\n")
 
 	# Retrieve the pre-calculated per-position divergence values
@@ -324,8 +341,8 @@ def main():
 		fine_div_win_list,fine_win_starts,stat_line = calc_total_wind_per_region(regions,size,reg_missing_masked_sets)
 		stat.write(stat_line + "\n")
 
-	print(fine_div_win_list[0:5])
-	print(fine_win_starts[0:5])
+	# print(fine_div_win_list[0:5])
+	# print(fine_win_starts[0:5])
 
 	stat_line = create_table(fine_div_win_list,fine_win_starts,regions,pop_names,out)
 	stat.write(stat_line + "\n")
